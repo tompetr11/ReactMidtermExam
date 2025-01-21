@@ -36,10 +36,6 @@ export const buyedStyles = StyleSheet.create({
     marginHorizontal: 16,
     color: 'blue',
   },
-  removeButton: {
-    marginLeft: 'auto',
-    padding: 8,
-  },
   separator: {
     height: 1,
     backgroundColor: '#645CBB',
@@ -75,5 +71,21 @@ export const buyedStyles = StyleSheet.create({
     marginLeft: 8,
     fontSize: 16,
     color: '#ff4444',
+  },
+  refreshButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 10,
+    backgroundColor: '#fff',
+    borderRadius: 5,
+    borderWidth: 1,
+    borderColor: 'green',
+    justifyContent: 'center',
+  },
+
+  refreshText: {
+    marginLeft: 8,
+    fontSize: 16,
+    color: 'green',
   },
 });

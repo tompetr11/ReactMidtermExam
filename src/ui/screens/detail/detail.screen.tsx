@@ -9,16 +9,14 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import Button from '../../atoms/button/button.atom';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useCarts } from '../hook/useCarts.facade';
 
 interface CartDetailProduct {
-  discountPercentage: number;
-  discountedTotal: number;
   id: number;
   price: number;
   quantity: number;
   thumbnail: string;
   title: string;
-  total: number;
 }
 
 interface CartDetail {
@@ -31,6 +29,7 @@ interface CartDetail {
   userId: number;
 }
 
+
 interface Props {
   navigation: NativeStackNavigationProp<MainParamList, Screen.Detail>;
   route: RouteProp<MainParamList, Screen.Detail>;
@@ -39,6 +38,7 @@ interface Props {
 const PURCHASED_ITEMS_KEY = '@purchased_items';
 
 const DetailScreen = ({ navigation, route }: Props) => {
+  const {addPurchasedItems}=useCarts();
   const { top, bottom } = useSafeAreaInsets();
   const { id, idsArray } = route.params;
   const [cart, setCart] = useState<CartDetail | null>(null);
@@ -74,23 +74,18 @@ const DetailScreen = ({ navigation, route }: Props) => {
       .then(setCart);
   }, [id]);
 
-  const savePurchasedItems = async (newItems: CartDetailProduct[]) => {
-    try {
-      const existingItemsString = await AsyncStorage.getItem(PURCHASED_ITEMS_KEY);
-      const existingItems: CartDetailProduct[] = existingItemsString
-        ? JSON.parse(existingItemsString)
-        : [];
-
-      const updatedItems = [...existingItems, ...newItems];
-      await AsyncStorage.setItem(PURCHASED_ITEMS_KEY, JSON.stringify(updatedItems));
-    } catch (error) {
-      console.error('Error saving purchased items:', error);
-    }
-  };
+  
 
   const handlePurchase = async () => {
     if (cart?.products) {
-      await savePurchasedItems(cart.products);
+      const genericCards = cart.products.map(product => ({
+        id: product.id,
+        title: product.title,
+        price: product.price,
+        quantity: product.quantity,
+        thumbnail: product.thumbnail
+      }));
+      await addPurchasedItems(genericCards);
       setPurchaseMessageVisible(true);
       setTimeout(() => {
         setPurchaseMessageVisible(false);

@@ -31,10 +31,9 @@ const FavoritesScreen = ({ navigation }: Props) => {
             console.log('Invalid item id');
             return;
           }
-          console.log('Navigating to FavoriteDetail with id:', item.id); // Log navigazione
-          navigation.navigate(Screen.FavoriteDetail, {
-            id: item.id,  // Passa l'id del prodotto
-            idsArray: carts.map((el) => el.id), // Passa l'array degli id
+          navigation.navigate(Screen.Detail, {
+            id: item.id,  
+            idsArray: carts.map((el) => el.id), 
           });
         }}
       />
