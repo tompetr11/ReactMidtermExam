@@ -1,14 +1,13 @@
-import { FlatList, ListRenderItem, View, Text } from 'react-native';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import { FlatList, View, Text } from 'react-native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { MainParamList, Screen } from '../../navigation/types';
 import { RouteProp } from '@react-navigation/native';
-import { GenericCard } from '../../atoms/genericCard/genericCard.atom';
-import { styles } from './detail.styles';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { GenericCard } from '../../atoms/genericCard/genericCard.atom'; // Modifica con il file appropriato
 import { Ionicons } from '@expo/vector-icons';
 import Button from '../../atoms/button/button.atom';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { styles } from '../detail/detail.styles';
 
 interface CartDetailProduct {
   discountPercentage: number;
@@ -21,30 +20,19 @@ interface CartDetailProduct {
   total: number;
 }
 
-interface CartDetail {
-  discountedTotal: number;
-  id: number;
-  products: CartDetailProduct[];
-  total: number;
-  totalProducts: number;
-  totalQuantity: number;
-  userId: number;
-}
-
 interface Props {
-  navigation: NativeStackNavigationProp<MainParamList, Screen.Detail>;
-  route: RouteProp<MainParamList, Screen.Detail>;
+  navigation: NativeStackNavigationProp<MainParamList, Screen.FavoriteDetail>;
+  route: RouteProp<MainParamList, Screen.FavoriteDetail>;
 }
 
 const PURCHASED_ITEMS_KEY = '@purchased_items';
 
-const DetailScreen = ({ navigation, route }: Props) => {
-  const { top, bottom } = useSafeAreaInsets();
-  const { id, idsArray } = route.params;
-  const [cart, setCart] = useState<CartDetail | null>(null);
+const FavoriteDetailScreen = ({ navigation, route }: Props) => {
+  const { idsArray } = route.params;
+  const [favoriteItems, setFavoriteItems] = useState<CartDetailProduct[]>([]);
   const [purchaseMessageVisible, setPurchaseMessageVisible] = useState(false);
 
-  const currentIndex = useMemo(() => idsArray.indexOf(id), [id, idsArray]);
+  const currentIndex = useMemo(() => idsArray.indexOf(route.params.id), [route.params.id, idsArray]);
 
   const backIconColor = useMemo(() => (currentIndex > 0 ? 'black' : '#cccccc'), [currentIndex]);
   const forwardIconColor = useMemo(
@@ -68,12 +56,6 @@ const DetailScreen = ({ navigation, route }: Props) => {
     navigation.setParams({ id: nextId });
   }, [currentIndex, idsArray, navigation]);
 
-  useEffect(() => {
-    fetch('https://dummyjson.com/carts/' + id)
-      .then((res) => res.json())
-      .then(setCart);
-  }, [id]);
-
   const savePurchasedItems = async (newItems: CartDetailProduct[]) => {
     try {
       const existingItemsString = await AsyncStorage.getItem(PURCHASED_ITEMS_KEY);
@@ -89,8 +71,8 @@ const DetailScreen = ({ navigation, route }: Props) => {
   };
 
   const handlePurchase = async () => {
-    if (cart?.products) {
-      await savePurchasedItems(cart.products);
+    if (favoriteItems.length > 0) {
+      await savePurchasedItems(favoriteItems);
       setPurchaseMessageVisible(true);
       setTimeout(() => {
         setPurchaseMessageVisible(false);
@@ -98,12 +80,30 @@ const DetailScreen = ({ navigation, route }: Props) => {
     }
   };
 
-  const renderDetailItem = useCallback<ListRenderItem<CartDetailProduct>>(({ item }) => {
+  useEffect(() => {
+    const favoriteItems = idsArray.map(id => {
+      return {
+        id,
+        // Altri dettagli del prodotto, puoi popolare con dati statici per esempio
+        thumbnail: `https://example.com/images/product_${id}.jpg`,
+        title: `Product ${id}`,
+        price: 10.0,
+        discountPercentage: 0,
+        discountedTotal: 10.0,
+        quantity: 1,
+        total: 10.0,
+      };
+    });
+
+    setFavoriteItems(favoriteItems);
+  }, [idsArray]);
+
+  const renderFavoriteItem = useCallback(({ item  }) => {
     return (
       <View style={styles.detailItem}>
         <GenericCard
           title={item.title}
-          subTitle={String(item.price)}
+          subTitle={`Price: €${item.price}`}
           image={{ uri: item.thumbnail }}
           backgroundColor={'#2e67bd'}
         />
@@ -114,7 +114,7 @@ const DetailScreen = ({ navigation, route }: Props) => {
   const ItemSeparatorComponent = useCallback(() => <View style={styles.itemSeparator}></View>, []);
 
   return (
-    <View style={[styles.container, { marginTop: top, marginBottom: bottom }]}>
+    <View style={styles.container}>
       <View style={styles.navigatorContainer}>
         <Ionicons
           name={'chevron-back-circle'}
@@ -132,9 +132,10 @@ const DetailScreen = ({ navigation, route }: Props) => {
 
       <FlatList
         showsVerticalScrollIndicator={false}
-        data={cart?.products}
-        renderItem={renderDetailItem}
+        data={favoriteItems}
+        renderItem={renderFavoriteItem}
         ItemSeparatorComponent={ItemSeparatorComponent}
+        keyExtractor={(item) => item.id.toString()}
       />
 
       {purchaseMessageVisible && (
@@ -157,4 +158,4 @@ const DetailScreen = ({ navigation, route }: Props) => {
   );
 };
 
-export default DetailScreen;
+export default FavoriteDetailScreen;

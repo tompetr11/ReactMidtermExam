@@ -2,19 +2,26 @@ export enum Screen {
   TabNavigator = 'TabNavigator',
   Home = 'Home',
   Detail = 'Detail',
-  Settings = 'Settings',
+  Buyed = 'history',  // Cambiato da Settings a Buyed
   Favorites = 'Favorites',
+  FavoriteDetail = "FavoriteDetail",
 }
 
 export type TabParams = {
   [Screen.Home]: {
     hasFavoritesUpdated: boolean;
   };
-  [Screen.Settings]: undefined;
+  [Screen.Buyed]: undefined;  // Cambiato da Settings a Buyed
   [Screen.Favorites]: {
     hasFavoritesUpdated: boolean;
   };
+  [Screen.FavoriteDetail]: { 
+    id: number;
+    idsArray: number[];  // Parametro per la schermata FavoriteDetail, un array di ID
+  };
 };
+
+
 
 export type MainParamList = {
   TabNavigator: undefined;
@@ -22,4 +29,10 @@ export type MainParamList = {
     id: number;
     idsArray: number[];
   };
+  [Screen.Buyed]: undefined;  // Aggiungi Buyed qui se necessario
+  [Screen.FavoriteDetail]: { 
+    id: number;
+    idsArray: number[];  // Parametro per la schermata FavoriteDetail
+  };
 };
+

@@ -41,7 +41,7 @@ const Card = ({ cart, selected, onAddFavorite, onPress }: CartCardProps) => {
           </View>
           <Ionicons
             onPress={onAddFavorite}
-            name={selected ? 'heart-sharp' : 'heart-outline'}
+            name={selected ? 'star' : 'star-outline'}
             size={28}
             color={'#ffd700'}
           />

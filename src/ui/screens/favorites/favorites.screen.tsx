@@ -13,7 +13,7 @@ interface Props {
 const FavoritesScreen = ({ navigation }: Props) => {
   const { carts, favoriteIds, refreshCarts, loadFavorites, addFavorite } = useCarts();
 
-  // **DATA ** //
+  // **DATA** //
   const favorites = useMemo(
     () => carts.filter((cart) => favoriteIds.includes(cart.id)),
     [carts, favoriteIds]
@@ -26,9 +26,20 @@ const FavoritesScreen = ({ navigation }: Props) => {
         cart={item}
         onAddFavorite={() => addFavorite(item)}
         selected={favoriteIds.includes(item.id)}
+        onPress={() => {
+          if (!item.id) {
+            console.log('Invalid item id');
+            return;
+          }
+          console.log('Navigating to FavoriteDetail with id:', item.id); // Log navigazione
+          navigation.navigate(Screen.FavoriteDetail, {
+            id: item.id,  // Passa l'id del prodotto
+            idsArray: carts.map((el) => el.id), // Passa l'array degli id
+          });
+        }}
       />
     ),
-    [addFavorite, favoriteIds]
+    [addFavorite, carts, favoriteIds, navigation]
   );
 
   const ItemSeparatorComponent = useCallback(() => <View style={styles.itemSeparator}></View>, []);
